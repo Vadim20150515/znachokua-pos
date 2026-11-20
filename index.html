@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Каса — ЗначокUA</title>
+<style>
+:root{--sb:#161b26;--bg:#f4f5f7;--bd:#e5e7eb;--mu:#6b7280;--ok:#16a34a;--no:#dc2626}
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;background:var(--bg);color:#111}
+button,input,select{font:inherit}button{border:1px solid var(--bd);background:#fff;padding:8px 12px;border-radius:10px;cursor:pointer}
+button.k{background:#111;color:#fff;border-color:#111}button.g{background:var(--ok);color:#fff;border-color:var(--ok)}button.r{color:var(--no)}button:disabled{opacity:.5}
+input,select{padding:9px;border:1px solid var(--bd);border-radius:10px;background:#fff;width:100%}
+.auth{max-width:380px;margin:9vh auto;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:28px}
+.auth h2{margin:0 0 4px}.auth input,.auth button.k{margin-top:10px}.auth button.k{width:100%;padding:11px}
+.logo{width:38px;height:38px;border-radius:10px;background:#22c55e;color:#fff;display:grid;place-items:center;font-weight:800}
+#app{display:flex;min-height:100vh}#side{width:250px;background:var(--sb);color:#cbd5e1;padding:14px;flex:none}
+#side .top{display:flex;gap:10px;align-items:center;color:#fff;font-weight:700;margin-bottom:14px}
+.nv{display:block;width:100%;text-align:left;background:none;border:0;border-radius:10px;color:#cbd5e1;padding:11px 12px;margin:2px 0}
+.nv.on{background:#fff;color:#111;font-weight:600}.sub{padding-left:18px}.sub .nv{padding:8px 12px;font-size:13px}
+#main{flex:1;padding:20px;min-width:0}#burger{display:none}
+@media(max-width:800px){#side{position:fixed;inset:0 auto 0 0;z-index:5;transform:translateX(-100%);transition:.2s}#side.o{transform:none}#burger{display:inline-block;margin-bottom:10px}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.card,.box{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:14px}.card b{display:block;font-size:22px;margin-top:4px}.card span{color:var(--mu)}
+.two{display:grid;grid-template-columns:1fr 340px;gap:14px}@media(max-width:900px){.two{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left}th{color:var(--mu);font-size:12px}.w{overflow-x:auto}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0}.row>.gr{flex:1}.row>input,.row>select{width:auto}.mu{color:var(--mu)}
+.bd{background:#f3f4f6;border-radius:99px;padding:2px 9px;font-size:12px}.bd.z{background:#fee2e2;color:var(--no)}
+.tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;margin:10px 0}
+.line{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd)}.line .gr{flex:1}.line button{padding:1px 9px}
+#md{position:fixed;inset:0;background:#0007;display:grid;place-items:center;padding:16px;z-index:9}#md .box{max-width:360px;width:100%}
+.fd{width:120px;height:92px;text-align:left;background:#f3f4f6;border-radius:14px;font-weight:600;padding:12px;line-height:1.7}.fd.on{outline:2px solid #111}
+.ph{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#f3f4f6;color:#9ca3af}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}.pt{display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:12px}
+.emp{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;min-height:260px;text-align:center}
+#chk{display:flex;flex-direction:column;position:sticky;top:12px;align-self:start;min-height:72vh}#chk .cl{flex:1}
+#md.hide,.hide{display:none!important}#tt{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:10px;z-index:99}
+@media print{body *{visibility:hidden}#md .box,#md .box *{visibility:visible}#md{position:absolute;background:none}#md button{display:none}}
+</style>
+</head>
+<body>
+<div id="root"></div><div id="md" class="hide"></div><div id="tt" class="hide"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>(Math.round(n*100)/100).toLocaleString('uk-UA')+' ₴',dt=t=>new Date(t).toLocaleString('uk-UA');
+const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}}};
+let TOK=ls.get('pos_tok'),S=null,view='home',cart=[],method='cash',q='',catF=null,vm='list',onlyIn=false,appr=false,apprCb=null,editId=null,openG={stock:true};
+const RL={owner:'Власник',admin:'Адміністратор',deputy:'Заступник адміністратора',cashier:'Касир'};
+const can={stock:['owner','admin','deputy'],users:['owner','admin'],reports:['owner','admin','deputy']};
+function toast(m){const t=$('#tt');t.textContent=m;t.classList.remove('hide');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.add('hide'),3500)}
+async function api(p,b){
+  const r=await fetch('/api/pos/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',...(TOK?{Authorization:'Bearer '+TOK}:{})},body:b?JSON.stringify(b):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(r.status===401&&TOK&&p!=='login'&&p!=='register'){logout();throw new Error('Сесія завершилась, увійдіть знову')}
+  if(!r.ok)throw new Error(j.error||'Помилка');return j}
+const go=async(p,b)=>{try{return await api(p,b)}catch(e){toast(e.message);return null}};
+function logout(){TOK=null;ls.set('pos_tok',null);S=null;cart=[];authV('login')}
+
+/* ---------- вхід / реєстрація ---------- */
+function authV(mode){
+  const reg=mode==='reg';
+  $('#root').innerHTML=`<div class="auth"><div class="logo">З</div><h2 style="margin-top:14px">${reg?'Реєстрація працівника':'Вхід у касу'}</h2><div class="mu">ЗначокUA</div>
+  <input id="e" type="email" placeholder="Email" autocomplete="username">
+  ${reg?'<input id="o" placeholder="Одноразовий пароль" autocapitalize="characters"><input id="p" type="password" placeholder="Придумайте пароль (від 10 символів)" autocomplete="new-password">':'<input id="p" type="password" placeholder="Пароль" autocomplete="current-password">'}
+  <button class="k" id="go">${reg?'Зареєструватися':'Увійти'}</button>
+  <p style="text-align:center"><a href="#" id="sw">${reg?'← Назад до входу':'Маєте одноразовий пароль? Реєстрація'}</a></p></div>`;
+  $('#sw').onclick=e=>{e.preventDefault();authV(reg?'login':'reg')};
+  const run=async()=>{
+    const body={email:$('#e').value,password:$('#p').value};if(reg)body.otp=$('#o').value;
+    const j=await go(reg?'register':'login',body);if(j){TOK=j.token;ls.set('pos_tok',TOK);boot()}};
+  $('#go').onclick=run;$('#root').onkeydown=e=>{if(e.key==='Enter')run()}}
+
+async function boot(){
+  if(!TOK)return authV('login');
+  try{S=await api('state')}catch{return authV('login')}
+  shell()}
+const refresh=async()=>{const j=await go('state');if(j){S=j;draw()}};
+
+/* ---------- каркас ---------- */
+const NAV=[['home','Головна','🏠'],['sell','Продаж','🛍'],['hist','Історія чеків','🧾'],
+['stock','Склад','📦','stock',[['prod','Товари'],['supply','Постачання'],['make','Виробництво'],['stop','Стоп-листи'],['inv','Інвентаризація'],['log','Історія дій']]],
+['org','Моя організація','🏪','users'],['rep','Звіти','📊','reports'],['set','Налаштування','⚙️']];
+const ok=k=>!k||can[k].includes(S.user.role);
+function shell(){
+  $('#root').innerHTML=`<div id="app"><aside id="side"></aside><main id="main"></main></div>`;draw()}
+function draw(){
+  $('#side').innerHTML=`<div class="top"><div class="logo">З</div>${esc(S.settings.name)}</div>`+NAV.filter(n=>ok(n[3])).map(n=>{
+    if(!n[4])return `<button class="nv ${view===n[0]?'on':''}" data-v="${n[0]}">${n[2]} ${n[1]}</button>`;
+    return `<button class="nv" data-g="${n[0]}">${n[2]} ${n[1]} ${openG[n[0]]?'▴':'▾'}</button>`+(openG[n[0]]?`<div class="sub">${n[4].map(s=>`<button class="nv ${view===s[0]?'on':''}" data-v="${s[0]}">${s[1]}</button>`).join('')}</div>`:'')}).join('')+
+  `<div style="margin:18px 12px 0;font-size:12px">${esc(S.user.name)}<br>${RL[S.user.role]}</div>`;
+  const V={home,sell,hist,prod,supply:()=>mov('supply','Постачання','Постачання'),make:()=>mov('make','Виробництво','Виробництво'),stop,inv,log:logV,org,rep,set};
+  $('#main').innerHTML=`<button id="burger" onclick="$('#side').classList.toggle('o')">☰ Меню</button>`+(V[view]||home)();if(view==='sell')sellDraw()}
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-v],[data-g],[data-a]');if(!t||!S)return;
+  const d=t.dataset;
+  if(d.v){view=d.v;$('#side').classList.remove('o');return draw()}
+  if(d.g){openG[d.g]=!openG[d.g];return draw()}
+  const id=+d.id,A={
+    add(){const p=S.products.find(x=>x.id===id),c=cart.find(x=>x.id===id);if(c){if(c.q<p.stock)c.q++}else if(p.stock>0)cart.push({id,q:1});else toast('Немає на складі');sellDraw()},
+    inc(){const c=cart[+d.k],p=S.products.find(x=>x.id===c.id);if(c.q<p.stock)c.q++;sellDraw()},
+    dec(){askAppr(()=>{const c=cart[+d.k];if(c&&--c.q<1){cart.splice(+d.k,1);if(!cart.length)appr=false}sellDraw()})},
+    rm(){askAppr(()=>{cart.splice(+d.k,1);if(!cart.length)appr=false;sellDraw()})},
+    clear(){askAppr(()=>{cart=[];appr=false;sellDraw()})},
+    async apok(){const j=await go('verify',{password:$('#ap').value,what:'видалення з чека'});if(j){appr=true;$('#md').classList.add('hide');const f=apprCb;apprCb=null;f&&f()}},
+    vm(){vm=vm==='list'?'grid':'list';draw()},
+    onlyin(){onlyIn=!onlyIn;draw()},
+    cat(){catF=catF===d.c?null:d.c;draw()},
+    topay(){if(cart.length)payModal()},
+    m(){method=d.m;document.querySelectorAll('[data-a=m]').forEach(b=>b.classList.toggle('k',b.dataset.m===method));$('#cashb').classList.toggle('hide',method!=='cash')},
+    async pay(){
+      if(!cart.length)return toast('Чек порожній');
+      const j=await go('sale',{items:cart,disc:$('#dc').value,method,given:$('#gv')?.value,client:$('#cl').value});
+      if(j){S.products=j.products;cart=[];appr=false;receipt(j.sale);await refresh()}},
+    rc(){receipt(S.sales.find(s=>s.no===id))},
+    async sdel(){if(confirm('Видалити чек №'+id+'? Товари повернуться на склад.')){if(await go('sale/del',{no:id}))refresh()}},
+    edit(){editId=id;draw();$('#pn').scrollIntoView?.()},
+    async pdel(){if(confirm('Видалити товар?')&&await go('product/del',{id}))refresh()},
+    async psave(){
+      const j=await go('product',{id:editId,name:$('#pn').value,price:$('#pp').value,stock:$('#ps')?.value,code:$('#pc').value,cat:$('#pcat').value,min:$('#pm').value});
+      if(j){editId=null;toast('Збережено');refresh()}},
+    pcancel(){editId=null;draw()},
+    async mov(){
+      const j=await go('stock',{type:d.t,id:+$('#sp').value,qty:$('#sq').value,note:$('#sn').value});
+      if(j){toast('Збережено');refresh()}},
+    async invsave(){
+      for(const i of document.querySelectorAll('[data-inv]'))if(i.value!==''&&+i.value!==+i.dataset.cur)if(!await go('stock',{type:'inv',id:+i.dataset.inv,qty:i.value}))return;
+      toast('Інвентаризацію збережено');refresh()},
+    async invite(){
+      const j=await go('user/invite',{email:$('#ue').value,name:$('#un').value,role:$('#ur').value});
+      if(j){modal(`<h3>Працівника створено</h3><p>Передайте працівнику email і цей одноразовий пароль. Він зареєструється на сторінці входу («Маєте одноразовий пароль?»).</p><div style="font:700 24px monospace;text-align:center;margin:14px 0;letter-spacing:2px">${j.otp}</div><p class="mu">Пароль показується один раз.</p><button class="k" style="width:100%" data-a="close">Зрозуміло</button>`);refresh()}},
+    async udel(){if(confirm('Видалити працівника '+d.email+'?')&&await go('user/del',{email:d.email}))refresh()},
+    async pw(){if(await go('password',{old:$('#po').value,new:$('#pnw').value})){toast('Пароль змінено');$('#po').value=$('#pnw').value=''}},
+    async shop(){const j=await go('settings',{name:$('#sn2').value});if(j){S.settings=j.settings;draw();toast('Збережено')}},
+    csv(){csvOut()},out(){logout()},close(){$('#md').classList.add('hide')}};
+  A[d.a]?.()});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){q=e.target.value;$('#plist').innerHTML=plist()}
+  if(e.target.id==='dc'||e.target.id==='gv')calc()});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  if(e.target.id==='ap')return document.querySelector('[data-a=apok]').click();
+  if(e.target.id==='q'&&q){const p=S.products.find(x=>x.code&&x.code===q.trim());if(p){e.target.value=q='';$('#plist').innerHTML=plist();document.querySelector(`#plist [data-id="${p.id}"]`)?.click()||0}}});
+function modal(h){const m=$('#md');m.innerHTML=`<div class="box">${h}</div>`;m.classList.remove('hide')}
+function receipt(s){modal(`<div style="text-align:center"><b>${esc(S.settings.name)}</b><br><small>Чек №${s.no} · ${dt(s.t)}</small></div><hr>
+${s.items.map(i=>`<div class="row"><span class="gr">${esc(i.name)} ×${i.q}</span>${money(i.price*i.q)}</div>`).join('')}<hr>
+${s.disc?`<div class="row"><span class="gr">Знижка</span>${s.disc}%</div>`:''}<div class="row"><b class="gr">РАЗОМ</b><b>${money(s.sum)}</b></div>
+<div class="row"><span class="gr">Оплата</span>${s.method==='cash'?'Готівка':'Картка'}</div>${s.given?`<div class="row"><span class="gr">Решта</span>${money(s.given-s.sum)}</div>`:''}
+<p style="text-align:center">Дякуємо за покупку! 💛</p><div class="row"><button class="gr" onclick="window.print()">🖨 Друк</button><button class="k gr" data-a="close">Готово</button></div>`)}
+
+/* ---------- сторінки ---------- */
+const sum=a=>a.reduce((x,s)=>x+s.sum,0);
+function salesT(list,acts){return `<div class="box w"><table><tr><th>№</th><th>Час</th><th>Товари</th><th>Оплата</th><th>Хто</th><th>Сума</th><th></th></tr>${list.map(s=>`<tr><td>${s.no}</td><td>${dt(s.t)}</td><td>${s.items.map(i=>esc(i.name)+' ×'+i.q).join(', ')}</td><td>${s.method==='cash'?'Готівка':'Картка'}</td><td>${esc(s.byName)}</td><td><b>${money(s.sum)}</b></td><td><button data-a="rc" data-id="${s.no}">🧾</button>${acts&&['owner','admin'].includes(S.user.role)?` <button class="r" data-a="sdel" data-id="${s.no}">✕</button>`:''}</td></tr>`).join('')||'<tr><td colspan=7 class="mu">Чеків ще немає</td></tr>'}</table></div>`}
+function home(){
+  const td=new Date().toDateString(),ts=S.sales.filter(s=>new Date(s.t).toDateString()===td),c=(a,v)=>`<div class="card"><span>${a}</span><b>${v}</b></div>`;
+  return `<h2>Головна</h2><div class="cards">${c('Чеків сьогодні',ts.length)}${c('Виторг сьогодні',money(sum(ts)))}${c('Готівка',money(sum(ts.filter(s=>s.method==='cash'))))}${c('Картка',money(sum(ts.filter(s=>s.method==='card'))))}${ok('stock')?c('Закінчується',S.products.filter(p=>p.stock<=p.min).length):''}</div><h3>Останні чеки</h3>`+salesT(S.sales.slice(0,5))}
+const cats=()=>[...new Set(S.products.map(p=>p.cat||'Значки'))];
+const cartSum=()=>cart.reduce((s,i)=>s+S.products.find(p=>p.id===i.id).price*i.q,0);
+const pList=()=>S.products.filter(p=>(!catF||(p.cat||'Значки')===catF)&&(!onlyIn||p.stock>0)&&(p.name.toLowerCase().includes(q.toLowerCase())||(p.code||'').includes(q)));
+function plist(){
+  const l=pList(),ic='<span class="ph">🖼</span>',bd=p=>`<span class="bd ${p.stock<=0?'z':''}">${p.stock} шт</span>`;
+  if(!l.length)return '<p class="mu" style="padding:14px">Нічого не знайдено</p>';
+  if(vm==='grid')return `<div class="pg">${l.map(p=>`<button class="pt" data-a="add" data-id="${p.id}">${ic}<b>${esc(p.name)}</b><span>${money(p.price)}</span>${bd(p)}</button>`).join('')}</div>`;
+  return `<table><tr><th></th><th>Назва</th><th>Залишки</th><th>Код</th><th>Ціна</th><th></th></tr>${l.map(p=>`<tr><td>${ic}</td><td><b>${esc(p.name)}</b></td><td>${bd(p)}</td><td class="mu">${esc(p.code)}</td><td>${money(p.price)}</td><td><button class="k" data-a="add" data-id="${p.id}">+</button></td></tr>`).join('')}</table>`}
+function sell(){
+  return `<div class="two"><div><div class="row"><input id="q" class="gr" placeholder="Пошук по каталогу товарів (або скануйте код)" value="${esc(q)}"><button data-a="vm" title="Вигляд">${vm==='list'?'▦':'☰'}</button><button data-a="onlyin" class="${onlyIn?'k':''}">В наявності</button></div>
+  <div class="row" style="flex-wrap:wrap">${cats().map(c=>`<button class="fd ${catF===c?'on':''}" data-a="cat" data-c="${esc(c)}">📁<br>${esc(c)}</button>`).join('')}</div>
+  <div class="box w" id="plist" style="margin-top:8px">${plist()}</div></div><div class="box" id="chk"></div></div>`}
+function sellDraw(){
+  const el=$('#chk');if(!el)return;
+  const line=(i,k)=>{const p=S.products.find(x=>x.id===i.id);return `<div class="line"><span class="gr"><b>${esc(p.name)}</b><br><small class="mu">${money(p.price)}</small></span><button data-a="dec" data-k="${k}">−</button><b>${i.q}</b><button data-a="inc" data-k="${k}">+</button><span style="width:70px;text-align:right">${money(p.price*i.q)}</span><button class="r" data-a="rm" data-k="${k}">🗑</button></div>`};
+  el.innerHTML=`<div class="row"><h3 class="gr" style="margin:0">Чек</h3><button class="r" data-a="clear" ${cart.length?'':'disabled'}>🗑</button></div><hr style="border:0;border-top:1px solid var(--bd)">
+  <div class="cl">${cart.length?cart.map(line).join(''):'<div class="emp"><b>Ваш чек поки що пустий</b><span class="mu">Додайте потрібні товари!</span></div>'}</div>
+  <div class="tot"><span>До сплати:</span><span>${cartSum().toFixed(2)} ₴</span></div><button class="k" style="width:100%;padding:13px" data-a="topay" ${cart.length?'':'disabled'}>Перейти до оплати</button>`}
+function askAppr(then){
+  if(appr)return then();apprCb=then;
+  modal(`<h3 style="margin-top:0">Потрібен пароль відповідального</h3><p class="mu">Видалення з чека підтверджує власник, адміністратор або заступник.</p><input id="ap" type="password" placeholder="Пароль відповідального" autocomplete="off"><div class="row"><button class="gr" data-a="close">Скасувати</button><button class="k gr" data-a="apok">Підтвердити</button></div>`);
+  setTimeout(()=>$('#ap')?.focus(),50)}
+function payModal(){
+  modal(`<h3 style="margin-top:0">Оплата</h3><div class="row"><span class="gr">Знижка, %</span><input id="dc" type="number" min="0" max="90" value="0" style="width:80px"></div><div class="tot"><span>До сплати:</span><span id="pt"></span></div>
+  <div class="row"><button class="gr ${method==='cash'?'k':''}" data-a="m" data-m="cash">Готівка</button><button class="gr ${method==='card'?'k':''}" data-a="m" data-m="card">Картка</button></div>
+  <div id="cashb" class="${method==='cash'?'':'hide'}"><div class="row"><span class="gr">Отримано, ₴</span><input id="gv" type="number" min="0" style="width:110px"></div><div class="row"><span class="gr">Решта</span><b id="chg">—</b></div></div>
+  <input id="cl" placeholder="Клієнт / коментар" style="margin:6px 0"><div class="row"><button class="gr" data-a="close">Назад</button><button class="g gr" data-a="pay">Оплатити</button></div>`);calc()}
+function calc(){
+  const t=Math.round(cartSum()*(100-Math.min(90,Math.max(0,+$('#dc').value||0))))/100,g=+($('#gv')?.value||0);
+  $('#pt').textContent=money(t);$('#chg').textContent=g?(g>=t?money(g-t):'не вистачає '+money(t-g)):'—'}
+const hist=()=>`<h2>Історія чеків</h2>`+salesT(S.sales,1);
+function prod(){
+  const p=S.products.find(x=>x.id===editId)||{},rows=S.products.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.code)}</td><td>${money(x.price)}</td><td><span class="bd ${x.stock<=0?'z':''}">${x.stock} шт</span></td><td><button data-a="edit" data-id="${x.id}">✏️</button> ${['owner','admin'].includes(S.user.role)?`<button class="r" data-a="pdel" data-id="${x.id}">✕</button>`:''}</td></tr>`).join('');
+  return `<h2>Товари</h2><div class="box"><b>${editId?'Редагувати товар':'Новий товар'}</b><div class="row"><input id="pn" placeholder="Назва" value="${esc(p.name)}" class="gr"><input id="pp" type="number" placeholder="Ціна ₴" value="${p.price??''}" style="width:100px"><input id="pc" placeholder="Код / штрихкод" value="${esc(p.code)}" style="width:140px"><input id="pcat" list="cl2" placeholder="Категорія" value="${esc(p.cat||'Значки')}" style="width:140px"><datalist id="cl2">${cats().map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+  <div class="row">${editId?'':'<input id="ps" type="number" placeholder="Початковий залишок" style="width:170px">'}<input id="pm" type="number" placeholder="Мін. залишок" value="${p.min??10}" style="width:140px"><button class="k" data-a="psave">Зберегти</button>${editId?'<button data-a="pcancel">Скасувати</button>':''}</div></div>
+  <div class="box w" style="margin-top:12px"><table><tr><th>Назва</th><th>Код</th><th>Ціна</th><th>Залишок</th><th></th></tr>${rows}</table></div>`}
+function mov(t,title,label){
+  const l=S.log.filter(x=>x.a.startsWith(label+':'));
+  return `<h2>${title}</h2><div class="box"><div class="row"><select id="sp" class="gr">${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} (зараз
