@@ -1,0 +1,6 @@
+node_modules/
+settings.env
+.env
+pos-data.json
+pos-data.json.tmp
+.DS_Store
