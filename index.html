@@ -190,4 +190,28 @@ function prod(){
   <div class="box w" style="margin-top:12px"><table><tr><th>Назва</th><th>Код</th><th>Ціна</th><th>Залишок</th><th></th></tr>${rows}</table></div>`}
 function mov(t,title,label){
   const l=S.log.filter(x=>x.a.startsWith(label+':'));
-  return `<h2>${title}</h2><div class="box"><div class="row"><select id="sp" class="gr">${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} (зараз
+  return `<h2>${title}</h2><div class="box"><div class="row"><select id="sp" class="gr">${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} (зараз ${p.stock})</option>`).join('')}</select><input id="sq" type="number" min="1" placeholder="Кількість" style="width:120px"></div><div class="row"><input id="sn" placeholder="Примітка (необов'язково)" class="gr"><button class="k" data-a="mov" data-t="${t}">Додати на склад</button></div></div>
+  <h3>Останні записи</h3><div class="box w"><table><tr><th>Час</th><th>Хто</th><th>Запис</th></tr>${l.map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Записів немає</td></tr>'}</table></div>`}
+const stop=()=>`<h2>Стоп-листи</h2><p class="mu">Товари, що закінчилися або майже закінчилися (залишок ≤ мінімального).</p><div class="box w"><table><tr><th>Назва</th><th>Залишок</th><th>Мінімум</th></tr>${S.products.filter(p=>p.stock<=p.min).map(p=>`<tr><td>${esc(p.name)}</td><td><span class="bd ${p.stock<=0?'z':''}">${p.stock} шт</span></td><td>${p.min}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Усе в наявності 🎉</td></tr>'}</table></div>`;
+const inv=()=>`<h2>Інвентаризація</h2><p class="mu">Впишіть фактичну кількість там, де вона відрізняється від облікової.</p><div class="box w"><table><tr><th>Назва</th><th>В обліку</th><th>Фактично</th></tr>${S.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.stock}</td><td><input type="number" min="0" style="width:110px" data-inv="${p.id}" data-cur="${p.stock}"></td></tr>`).join('')}</table></div><div class="row"><button class="k" data-a="invsave">Зберегти інвентаризацію</button></div>`;
+const logV=()=>`<h2>Історія дій</h2><div class="box w"><table><tr><th>Час</th><th>Хто</th><th>Дія</th></tr>${S.log.map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Порожньо</td></tr>'}</table></div>`;
+function org(){
+  const roles=S.user.role==='owner'?['admin','deputy','cashier']:['deputy','cashier'];
+  return `<h2>Моя організація</h2><div class="box"><b>Додати працівника</b><div class="row"><input id="ue" type="email" placeholder="Email" class="gr"><input id="un" placeholder="Ім'я" class="gr"><select id="ur">${roles.map(r=>`<option value="${r}">${RL[r]}</option>`).join('')}</select><button class="k" data-a="invite">Створити</button></div><div class="mu">Система видасть одноразовий пароль для першого входу.</div></div>
+  <div class="box w" style="margin-top:12px"><table><tr><th>Ім'я</th><th>Email</th><th>Роль</th><th>Статус</th><th></th></tr><tr><td>${esc(S.user.role==='owner'?S.user.name:'Власник')}</td><td>—</td><td>Власник</td><td><span class="bd">активний</span></td><td></td></tr>
+  ${S.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${RL[u.role]}</td><td><span class="bd">${u.active?'активний':'очікує реєстрації'}</span></td><td>${S.user.role==='owner'||['deputy','cashier'].includes(u.role)?`<button class="r" data-a="udel" data-email="${esc(u.email)}">✕</button>`:''}</td></tr>`).join('')}</table></div>`}
+function rep(){
+  const byD={},byP={};S.sales.forEach(s=>{const d=new Date(s.t).toLocaleDateString('uk-UA');(byD[d]=byD[d]||{n:0,s:0}).n++;byD[d].s+=s.sum;s.items.forEach(i=>{(byP[i.name]=byP[i.name]||{q:0,s:0}).q+=i.q;byP[i.name].s+=i.price*i.q})});
+  return `<h2>Звіти</h2><div class="row"><b class="gr">Усього: ${S.sales.length} чеків на ${money(sum(S.sales))}</b><button data-a="csv">⬇️ CSV</button></div>
+  <h3>По днях</h3><div class="box w"><table><tr><th>Дата</th><th>Чеків</th><th>Виторг</th></tr>${Object.entries(byD).slice(0,31).map(([d,v])=>`<tr><td>${d}</td><td>${v.n}</td><td>${money(v.s)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Немає даних</td></tr>'}</table></div>
+  <h3>По товарах</h3><div class="box w"><table><tr><th>Товар</th><th>Продано, шт</th><th>Сума</th></tr>${Object.entries(byP).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.q}</td><td>${money(v.s)}</td></tr>`).join('')}</table></div>`}
+function csvOut(){
+  const c=x=>'"'+String(x).replace(/"/g,'""')+'"',t='\ufeff'+['№;час;товари;знижка %;оплата;сума;касир',...S.sales.map(s=>[s.no,dt(s.t),s.items.map(i=>i.name+' x'+i.q).join(', '),s.disc,s.method==='cash'?'готівка':'картка',s.sum,s.byName].map(c).join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download='kasa.csv';a.click()}
+function set(){
+  return `<h2>Налаштування</h2>${S.user.role==='owner'?`<div class="box"><b>Назва магазину</b><div class="row"><input id="sn2" class="gr" value="${esc(S.settings.name)}"><button class="k" data-a="shop">Зберегти</button></div></div>`:`<div class="box"><b>Змінити пароль</b><div class="row"><input id="po" type="password" placeholder="Старий пароль" class="gr"><input id="pnw" type="password" placeholder="Новий (від 10 символів)" class="gr"><button class="k" data-a="pw">Змінити</button></div></div>`}
+  <div class="box" style="margin-top:12px">Ви увійшли як <b>${esc(S.user.name)}</b> (${RL[S.user.role]})<div class="row"><button class="r" data-a="out">Вийти</button></div></div>`}
+boot();
+</script>
+</body>
+</html>
