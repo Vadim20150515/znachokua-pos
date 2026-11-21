@@ -8,6 +8,7 @@ let db = { users: [], products: [], sales: [], log: [], settings: { name: "Зн�
 try { Object.assign(db, JSON.parse(fs.readFileSync(FILE, "utf8"))); } catch {}
 if (!db.products.length) db.products = [["Маленький значок", 15], ["Середній значок", 25], ["Великий значок", 35]].map(([name, price], i) => ({ id: i + 1, name, price, stock: 100, code: "", min: 10 }));
 const save = () => { try { fs.writeFileSync(FILE + ".tmp", JSON.stringify(db)); fs.renameSync(FILE + ".tmp", FILE); } catch (e) { console.error("pos save:", e.message); } };
+const cfg = () => ({ name: "ЗначокUA", methods: { cash: true, card: true }, receipt: { head: "", foot: "Дякуємо за покупку! 💛", showCashier: true }, ...db.settings });
 const sha = s => crypto.createHash("sha256").update(String(s)).digest();
 const same = (a, b) => crypto.timingSafeEqual(sha(a), sha(b));
 const hash = pw => { const s = crypto.randomBytes(16).toString("hex"); return s + ":" + crypto.scryptSync(pw, s, 32).toString("hex"); };
@@ -67,9 +68,12 @@ module.exports = async (req, res, url) => {
       delete fails[k]; log(`Правка чека (${String(b.what || "").slice(0, 60)}), схвалив: ${by}`); save(); return send(200, { by });
     }
     if (p === "state") return send(200, {
-      user: me, settings: db.settings, products: db.products,
+      user: me, settings: cfg(), products: db.products,
       sales: (me.role === "cashier" ? db.sales.filter(s => s.by === me.email) : db.sales).slice(0, 1000),
-      log: me.role === "cashier" ? [] : db.log.slice(0, 300),
+      log: me.role === "cashier" ? [] : db.log.slice(0, 600),
+      partners: ["owner", "admin", "deputy"].includes(me.role) ? db.partners || [] : [],
+      promos: ["owner", "admin"].includes(me.role) ? db.promos || [] : [],
+      expenses: ["owner", "admin"].includes(me.role) ? db.expenses || [] : [],
       users: ["owner", "admin"].includes(me.role) ? db.users.map(u => ({ email: u.email, name: u.name, role: u.role, active: !!u.hash })) : []
     });
 
@@ -104,8 +108,11 @@ module.exports = async (req, res, url) => {
           x.stock -= q; items.push({ id: x.id, name: x.name, price: x.price, q }); sum += x.price * q;
         }
         if (!items.length) throw new Error("Чек порожній");
-        const disc = Math.min(90, Math.max(0, +b.disc || 0)); sum = Math.round(sum * (100 - disc)) / 100;
+        let disc = Math.min(90, Math.max(0, +b.disc || 0));
+        if (b.promo) { const pr = (db.promos || []).find(x => x.code === String(b.promo).trim().toUpperCase()); if (!pr) throw new Error("Промокод не знайдено"); disc = pr.percent; }
+        sum = Math.round(sum * (100 - disc)) / 100;
         const method = b.method === "card" ? "card" : "cash", given = method === "cash" ? Math.max(0, +b.given || 0) : 0;
+        if (!cfg().methods[method]) throw new Error("Цей метод оплати вимкнений");
         if (given && given < sum) throw new Error("Отримана сума менша за суму чеку");
         const s = { no: db.sales.reduce((m, y) => Math.max(m, y.no), 0) + 1, t: new Date().toISOString(), items, disc, sum, method, given, client: String(b.client || "").slice(0, 100), by: me.email, byName: me.name };
         db.sales.unshift(s); log(`Продаж №${s.no} на ${sum} ₴`); save(); return send(200, { sale: s, products: db.products });
@@ -143,7 +150,35 @@ module.exports = async (req, res, url) => {
       if (String(b.new || "").length < 10) throw new Error("Пароль має містити щонайменше 10 символів");
       u.hash = hash(String(b.new)); save(); return send(200, { ok: 1 });
     }
-    if (p === "settings") { need("owner"); db.settings.name = String(b.name || "ЗначокUA").slice(0, 40); save(); return send(200, { settings: db.settings }); }
+    if (p === "promo/check") {
+      const pr = (db.promos || []).find(x => x.code === String(b.code || "").trim().toUpperCase());
+      if (!pr) throw new Error("Промокод не знайдено"); return send(200, { percent: pr.percent });
+    }
+    if (p === "coll") { // партнери / промокоди / витрати
+      const RL = { partners: ["owner", "admin", "deputy"], promos: ["owner", "admin"], expenses: ["owner", "admin"] };
+      if (!RL[b.c]) throw new Error("Невідомий розділ"); need(...RL[b.c]);
+      const L = db[b.c] = db[b.c] || [];
+      if (b.del) { db[b.c] = L.filter(x => x.id !== b.id); log("Видалено запис (" + b.c + ")"); }
+      else {
+        const d = b.d || {}, t = (v, n) => String(v || "").trim().slice(0, n); const x = { id: Date.now() };
+        if (b.c === "partners") { x.name = t(d.name, 80); x.phone = t(d.phone, 30); x.note = t(d.note, 200); if (!x.name) throw new Error("Вкажіть назву"); }
+        if (b.c === "promos") {
+          x.code = t(d.code, 20).toUpperCase(); x.percent = Math.floor(+d.percent);
+          if (!/^[A-Z0-9_-]{3,20}$/.test(x.code) || !(x.percent >= 1 && x.percent <= 90)) throw new Error("Код: 3-20 латинських літер або цифр; знижка 1-90%");
+          if (L.some(y => y.code === x.code)) throw new Error("Такий код уже є");
+        }
+        if (b.c === "expenses") { x.t = new Date().toISOString(); x.cat = t(d.cat, 40) || "Інше"; x.amount = Math.round(+d.amount * 100) / 100; x.note = t(d.note, 120); if (!(x.amount > 0)) throw new Error("Вкажіть суму витрат"); }
+        L.unshift(x); log("Додано запис (" + b.c + ")");
+      }
+      save(); return send(200, { coll: db[b.c] });
+    }
+    if (p === "settings") {
+      need("owner");
+      if (b.name !== undefined) db.settings.name = String(b.name || "ЗначокUA").slice(0, 40);
+      if (b.methods) { const m = { cash: !!b.methods.cash, card: !!b.methods.card }; if (!m.cash && !m.card) throw new Error("Має бути увімкнений хоча б один метод оплати"); db.settings.methods = m; }
+      if (b.receipt) db.settings.receipt = { head: String(b.receipt.head || "").slice(0, 120), foot: String(b.receipt.foot || "").slice(0, 160), showCashier: !!b.receipt.showCashier };
+      log("Налаштування змінено"); save(); return send(200, { settings: cfg() });
+    }
     send(404, { error: "Маршрут не знайдено" });
   } catch (e) { if (!res.headersSent) send(400, { error: e.message || "Помилка запиту" }); }
 };
