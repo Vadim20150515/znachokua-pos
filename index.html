@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Каса — ЗначокUA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16203a;--ink2:#222d4d;--sun:#ffc21a;--blue:#3b5bdb;--poppy:#e8452c;--meadow:#1f8f5f;
+  --bg:#eceff4;--paper:#fff;--bd:#dde2ea;--bd2:#cbd2de;--mu:#667089;--soft:#f4f6fa;
+  --fb:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;--fd:'Unbounded','Onest',system-ui,sans-serif;
+  --r:14px;--rc:10px}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 var(--fb);color:var(--ink);background:var(--bg);font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+h2,h3{font-family:var(--fd);font-weight:600;letter-spacing:-.01em;margin:0}
+h2{font-size:22px;margin-bottom:18px}h3{font-size:15px;margin:22px 0 10px}
+.mu{color:var(--mu)}.hide{display:none!important}
+/* controls */
+button{border:1px solid var(--bd2);background:var(--paper);padding:8px 14px;border-radius:var(--rc);cursor:pointer;font-weight:500;transition:background .12s,border-color .12s}
+button:hover:not(:disabled){background:var(--soft);border-color:#b4bdcd}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button.k{background:var(--ink);border-color:var(--ink);color:#fff}button.k:hover:not(:disabled){background:var(--ink2);border-color:var(--ink2)}
+button.g{background:var(--meadow);border-color:var(--meadow);color:#fff}button.g:hover:not(:disabled){background:#187a50;border-color:#187a50}
+button.r{color:var(--poppy)}button.r:hover:not(:disabled){background:#fdeeea;border-color:#f3b9ad}
+button.cta{width:100%;padding:14px;background:var(--sun);border-color:var(--sun);color:var(--ink);font-weight:700;font-size:15px}
+button.cta:hover:not(:disabled){background:#f5b400;border-color:#f5b400}
+input,select{padding:9px 11px;border:1px solid var(--bd2);border-radius:var(--rc);background:var(--paper);width:100%;transition:border-color .12s,box-shadow .12s}
+input:focus,select:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 3px #3b5bdb22}
+input::placeholder{color:#97a0b4}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--ink)}
+/* login */
+.auth{max-width:392px;margin:10vh auto;background:var(--paper);border:1px solid var(--bd);border-radius:20px;padding:32px}
+.auth h2{margin:16px 0 2px}.auth input{margin-top:10px}.auth button.k{width:100%;padding:12px;margin-top:14px}.auth a{color:var(--blue)}
+/* logo: значок */
+.logo{width:40px;height:40px;border-radius:50%;background:var(--sun);color:var(--ink);font:700 18px var(--fd);display:grid;place-items:center;flex:none;box-shadow:0 0 0 3px var(--ink),0 0 0 4.5px #ffffff3d}
+.auth .logo{box-shadow:0 0 0 3px var(--paper),0 0 0 4.5px var(--ink)}
+/* shell */
+#app{display:flex;min-height:100vh}
+#side{width:264px;background:var(--ink);color:#aeb8d2;padding:18px 12px;flex:none;position:sticky;top:0;height:100vh;overflow-y:auto}
+#side .top{display:flex;gap:12px;align-items:center;color:#fff;font:600 15px var(--fd);margin:2px 6px 22px}
+.nv{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:none;border:0;border-radius:var(--rc);color:#aeb8d2;padding:10px 12px;margin:2px 0;font-weight:500}
+.nv:hover:not(:disabled){background:#ffffff14;color:#fff;border:0}
+.nv.on,.nv.on:hover:not(:disabled){background:var(--sun);color:var(--ink);font-weight:600}
+.nv.ing{color:#fff}
+.nv i{display:grid;place-items:center;flex:none}.ic{width:19px;height:19px}
+.nv em{margin-left:auto;font-style:normal;font-size:10px;opacity:.6}
+.sub{margin:2px 0 6px 21px;padding-left:10px;border-left:1px solid #ffffff26}
+.sub .nv{padding:7px 12px;font-size:13px}.sub .nv.on,.sub .nv.on:hover:not(:disabled){background:#ffffff14;color:var(--sun)}
+.me{margin:22px 8px 0;padding-top:14px;border-top:1px solid #ffffff1f;font-size:12px;color:#8793b3}.me b{color:#fff;font-weight:600;display:block}
+#main{flex:1;padding:28px;min-width:0;max-width:1240px}#burger{display:none}
+@media(max-width:800px){#side{position:fixed;inset:0 auto 0 0;z-index:5;transform:translateX(-100%);transition:transform .22s}#side.o{transform:none;box-shadow:12px 0 40px #0006}#burger{display:inline-block;margin-bottom:12px}#main{padding:16px}}
+/* surfaces */
+.box{background:var(--paper);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.w{overflow-x:auto}
+.row{display:flex;gap:8px;align-items:center;margin:8px 0}.row>.gr{flex:1;min-width:0}.row>input,.row>select{width:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:11px 10px;border-bottom:1px solid var(--bd);text-align:left}
+th{color:var(--mu);font-size:12px;font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}tbody tr:hover td,table>tr:hover td{background:var(--soft)}
+.bd{display:inline-block;background:#e7ecf6;color:#2a3a63;border-radius:99px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.bd.z{background:#fde5e0;color:#b4311c}
+/* показники: одна смуга, не купа однакових карток */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));background:var(--paper);border:1px solid var(--bd);border-radius:var(--r);margin:0 0 20px;overflow:hidden}
+.card{padding:16px 20px;border-left:1px solid var(--bd)}.card:first-child{border-left:0}
+.card span{color:var(--mu);font-size:13px}.card b{display:block;font:600 22px var(--fd);margin-top:4px}
+/* головна */
+.day{display:grid;grid-template-columns:minmax(220px,1.1fr) 1.4fr auto;gap:28px;align-items:center;background:var(--ink);color:#fff;border-radius:var(--r);padding:24px 28px}
+.day .mu{color:#9aa6c6}.big{display:block;font:600 34px/1.15 var(--fd);margin-top:4px;color:#fff}
+.bar{height:12px;border-radius:99px;background:#fff3;overflow:hidden;display:flex}.bar i{background:var(--sun);display:block}
+.lg{display:flex;gap:18px;margin-top:10px;font-size:13px;color:#cbd3e8;flex-wrap:wrap}.lg s{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;text-decoration:none;vertical-align:-1px}
+.lg .d1{background:var(--sun)}.lg .d2{background:#fff3;box-shadow:inset 0 0 0 1px #fff6}
+.facts{display:flex;gap:26px;margin:0}.facts div{text-align:left}.facts dt{color:#9aa6c6;font-size:12px}.facts dd{margin:2px 0 0;font:600 20px var(--fd)}
+@media(max-width:1000px){.day{grid-template-columns:1fr}.facts{gap:32px}}
+/* продаж */
+.two{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:18px;align-items:start}.two>*{min-width:0}@media(max-width:960px){.two{grid-template-columns:minmax(0,1fr)}#chk{position:static;min-height:0}}
+@media(max-width:700px){.pl th,.pl td{padding:10px 6px}.pl td{white-space:nowrap}.pl td:nth-child(2){white-space:normal}.pl .disc{--s:32px!important}.pl td:first-child{width:44px!important}.st th:nth-child(2),.st td:nth-child(2),.st th:nth-child(4),.st td:nth-child(4),.st th:nth-child(5),.st td:nth-child(5),.pl th:nth-child(4),.pl td:nth-child(4){display:none}.day{padding:20px}.big{font-size:30px}h2{font-size:20px}}
+.fd{display:inline-flex;align-items:center;gap:8px;width:auto;height:auto;padding:7px 14px;border-radius:99px;background:var(--paper);font-weight:600}
+.fd small{color:var(--mu);font-weight:500}.fd.on{background:var(--ink);border-color:var(--ink);color:#fff}.fd.on small{color:#aeb8d2}
+.fd.on:hover:not(:disabled){background:var(--ink2);border-color:var(--ink2)}
+.disc{position:relative;width:var(--s,38px);height:var(--s,38px);border-radius:50%;background:var(--c);color:#fff;display:inline-grid;place-items:center;font:700 calc(var(--s,38px)*.4) var(--fd);flex:none;box-shadow:inset 0 0 0 calc(var(--s,38px)*.07) #ffffff40,inset 0 calc(var(--s,38px)*-.07) 0 #00000026}
+.disc::after{content:"";position:absolute;left:22%;top:14%;width:30%;height:16%;border-radius:50%;background:#fff;opacity:.3;transform:rotate(-30deg)}
+.pn{display:flex;align-items:center;gap:12px;font-weight:600}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.pt{display:flex;flex-direction:column;gap:5px;align-items:center;text-align:center;padding:18px 10px 14px;border-radius:var(--r);background:var(--paper)}
+.pt:hover:not(:disabled){border-color:var(--ink)}.pt b{font-weight:600}.pt .disc{margin-bottom:6px}
+.emp{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;min-height:240px;text-align:center}.emp b{font:600 15px var(--fd)}
+/* чек: паперова стрічка із зубчастим краєм */
+#chk{position:sticky;top:20px;display:flex;flex-direction:column;min-height:70vh;padding:18px 18px 34px;border-radius:12px 12px 0 0;border-bottom:0;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%}
+#chk .cl{flex:1}
+#chk>.row:first-child h3{margin:0}
+.line{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--bd2)}.line .gr{flex:1 0 100%;line-height:1.3}.line .gr small{margin-left:6px}
+.line button{width:28px;height:28px;padding:0;border-radius:50%;display:inline-grid;place-items:center;line-height:1}
+.td-ic{}
+.line b{min-width:20px;text-align:center}.line .sm{margin-left:auto;font-weight:700}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0;padding-top:14px;border-top:2px dashed var(--ink)}
+.tot span:first-child{font-weight:600}.tot span:last-child{font:700 22px var(--fd)}
+.fl{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu)}.fl input{width:150px}
+hr{border:0;border-top:1px dashed var(--bd2);margin:12px 0}
+/* вікна */
+#md{position:fixed;inset:0;background:#16203a99;display:grid;place-items:center;padding:16px;z-index:9}
+#md .box{max-width:380px;width:100%;box-shadow:0 24px 60px #16203a55;animation:pop .18s ease-out}
+#md .box.paper{border-radius:12px 12px 0 0;border-bottom:0;padding-bottom:34px;box-shadow:none;
+  -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%;mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/16px 100%}
+#md .box.paper .tot{border-top-color:var(--ink)}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}}
+#tt{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:var(--rc);z-index:99;box-shadow:0 10px 30px #16203a55;animation:pop .18s ease-out}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{body *{visibility:hidden}#md .box,#md .box *{visibility:visible}#md{position:absolute;background:none}#md .box{box-shadow:none;-webkit-mask:none;mask:none}#md button{display:none}}
+</style>
+</head>
+<body>
+<div id="root"></div><div id="md" class="hide"></div><div id="tt" class="hide"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>(Math.round(n*100)/100).toLocaleString('uk-UA')+' ₴',dt=t=>new Date(t).toLocaleString('uk-UA');
+const ls={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}}};
+let TOK=ls.get('pos_tok'),S=null,view='home',cart=[],method='cash',q='',catF=null,vm='list',onlyIn=false,appr=false,apprCb=null,editId=null,promoPct=0,jf={u:'',t:''},openG={stock:true};
+const RL={owner:'Власник',admin:'Адміністратор',deputy:'Заступник адміністратора',cashier:'Касир'};
+const can={stock:['owner','admin','deputy'],users:['owner','admin'],reports:['owner','admin','deputy'],cfg:['owner']};
+const D0=j=>Object.assign({partners:[],promos:[],expenses:[]},j);
+function toast(m){const t=$('#tt');t.textContent=m;t.classList.remove('hide');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.add('hide'),3500)}
+async function api(p,b){
+  const r=await fetch('/api/pos/'+p,{method:b?'POST':'GET',headers:{'Content-Type':'application/json',...(TOK?{Authorization:'Bearer '+TOK}:{})},body:b?JSON.stringify(b):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(r.status===401&&TOK&&p!=='login'&&p!=='register'){logout();throw new Error('Сесія завершилась, увійдіть знову')}
+  if(!r.ok)throw new Error(j.error||'Помилка');return j}
+const go=async(p,b)=>{try{return await api(p,b)}catch(e){toast(e.message);return null}};
+function logout(){TOK=null;ls.set('pos_tok',null);S=null;cart=[];authV('login')}
+
+/* ---------- вхід / реєстрація ---------- */
+function authV(mode){
+  const reg=mode==='reg';
+  $('#root').innerHTML=`<div class="auth"><div class="logo">З</div><h2 style="margin-top:14px">${reg?'Реєстрація працівника':'Вхід у касу'}</h2><div class="mu">ЗначокUA</div>
+  <input id="e" type="email" placeholder="Email" autocomplete="username">
+  ${reg?'<input id="o" placeholder="Одноразовий пароль" autocapitalize="characters"><input id="p" type="password" placeholder="Придумайте пароль (від 10 символів)" autocomplete="new-password">':'<input id="p" type="password" placeholder="Пароль" autocomplete="current-password">'}
+  <button class="k" id="go">${reg?'Зареєструватися':'Увійти'}</button>
+  <p style="text-align:center"><a href="#" id="sw">${reg?'← Назад до входу':'Маєте одноразовий пароль? Реєстрація'}</a></p></div>`;
+  $('#sw').onclick=e=>{e.preventDefault();authV(reg?'login':'reg')};
+  const run=async()=>{
+    const body={email:$('#e').value,password:$('#p').value};if(reg)body.otp=$('#o').value;
+    const j=await go(reg?'register':'login',body);if(j){TOK=j.token;ls.set('pos_tok',TOK);boot()}};
+  $('#go').onclick=run;$('#root').onkeydown=e=>{if(e.key==='Enter')run()}}
+
+async function boot(){
+  if(!TOK)return authV('login');
+  try{S=D0(await api('state'))}catch{return authV('login')}
+  shell()}
+const refresh=async()=>{const j=await go('state');if(j){S=D0(j);draw()}};
+
+/* ---------- каркас ---------- */
+const NAV=[['home','Головна','🏠'],['sell','Продаж','🛍'],['hist','Історія чеків','🧾'],
+['stock','Склад','📦',[['prod','Товари','stock'],['supply','Постачання','stock'],['make','Виробництво','stock'],['stop','Стоп-листи','stock'],['inv','Інвентаризація','stock'],['log','Історія дій','stock']]],
+['orgG','Моя організація','🏪',[['org','Організація','users'],['partners','Партнери','stock'],['promo','Маркетинг','users'],['fin','Фінанси','users']]],
+['repG','Звіти','📊',[['rep','Інші звіти','reports'],['pl','P&L','users'],['abc','ABC-аналіз','reports'],['cf','Cashflow','users'],['mv','Звіт по руху','reports']]],
+['jr','Журнал дій','📜','users'],
+['setG','Налаштування','⚙️',[['set','Загальні'],['pay','Методи оплати','cfg'],['rcp','Чеки','cfg']]]];
+const IC=p=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS={home:IC('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>'),sell:IC('<path d="M6 7h12l1 13H5L6 7z"/><path d="M9 7a3 3 0 016 0"/>'),hist:IC('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/>'),stock:IC('<path d="M3 7l9-4 9 4v10l-9 4-9-4V7z"/><path d="M3 7l9 4 9-4M12 11v10"/>'),orgG:IC('<path d="M4 9l1-5h14l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/>'),repG:IC('<path d="M4 20V10M10 20V4M16 20v-7M2 20h20"/>'),jr:IC('<path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/>'),setG:IC('<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>')};
+const PEN=IC('<path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/>');
+const RCI=IC('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/>');
+const DCOL=['#3b5bdb','#e8452c','#1f8f5f','#8e44ad','#d9730d','#0e8aa0','#d6336c','#364fc7'];
+const disc=(p,s)=>{let x=0;for(const c of String(p.name))x=(x*31+c.charCodeAt(0))>>>0;return `<span class="disc" style="--c:${DCOL[x%DCOL.length]};--s:${s||38}px">${esc(String(p.name).trim()[0]||'?')}</span>`};
+const ok=k=>!k||can[k].includes(S.user.role);
+function shell(){
+  $('#root').innerHTML=`<div id="app"><aside id="side"></aside><main id="main"></main></div>`;draw()}
+function draw(){
+  const lf=n=>`<button class="nv ${view===n[0]?'on':''}" data-v="${n[0]}"><i>${ICONS[n[0]]||''}</i>${n[1]}</button>`;
+  $('#side').innerHTML=`<div class="top"><div class="logo">З</div>${esc(S.settings.name)}</div>`+NAV.map(n=>{
+    if(!(n[3] instanceof Array))return ok(n[3])?lf(n):'';
+    const ss=n[3].filter(s=>ok(s[2]));if(!ss.length)return '';
+    const on=ss.some(s=>s[0]===view);
+    return `<button class="nv ${on&&!openG[n[0]]?'ing':''}" data-g="${n[0]}"><i>${ICONS[n[0]]||''}</i>${n[1]}<em>${openG[n[0]]?'▴':'▾'}</em></button>`+(openG[n[0]]?`<div class="sub">${ss.map(s=>`<button class="nv ${view===s[0]?'on':''}" data-v="${s[0]}">${s[1]}</button>`).join('')}</div>`:'')}).join('')+
+  `<div class="me"><b>${esc(S.user.name)}</b>${S.user.name===RL[S.user.role]?'':RL[S.user.role]}</div>`;
+  const V={home,sell,hist,prod,supply:()=>mov('supply','Постачання','Постачання'),make:()=>mov('make','Виробництво','Виробництво'),stop,inv,log:logV,org,partners:partV,promo:promoV,fin:finV,rep,pl:plV,abc:abcV,cf:cfV,mv:mvV,jr:jrV,set,pay:payV,rcp:rcpV};
+  $('#main').innerHTML=`<button id="burger" onclick="$('#side').classList.toggle('o')">☰ Меню</button>`+(V[view]||home)();if(view==='sell')sellDraw()}
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('[data-v],[data-g],[data-a]');if(!t||!S)return;
+  const d=t.dataset;
+  if(d.v){view=d.v;$('#side').classList.remove('o');return draw()}
+  if(d.g){openG[d.g]=!openG[d.g];return draw()}
+  const id=+d.id,A={
+    add(){const p=S.products.find(x=>x.id===id),c=cart.find(x=>x.id===id);if(c){if(c.q<p.stock)c.q++}else if(p.stock>0)cart.push({id,q:1});else toast('Немає на складі');sellDraw()},
+    inc(){const c=cart[+d.k],p=S.products.find(x=>x.id===c.id);if(c.q<p.stock)c.q++;sellDraw()},
+    dec(){askAppr(()=>{const c=cart[+d.k];if(c&&--c.q<1){cart.splice(+d.k,1);if(!cart.length)appr=false}sellDraw()})},
+    rm(){askAppr(()=>{cart.splice(+d.k,1);if(!cart.length)appr=false;sellDraw()})},
+    clear(){askAppr(()=>{cart=[];appr=false;sellDraw()})},
+    async apok(){const j=await go('verify',{password:$('#ap').value,what:'видалення з чека'});if(j){appr=true;$('#md').classList.add('hide');const f=apprCb;apprCb=null;f&&f()}},
+    vm(){vm=vm==='list'?'grid':'list';draw()},
+    onlyin(){onlyIn=!onlyIn;draw()},
+    cat(){catF=catF===d.c?null:d.c;draw()},
+    topay(){if(cart.length)payModal()},
+    m(){method=d.m;document.querySelectorAll('[data-a=m]').forEach(b=>b.classList.toggle('k',b.dataset.m===method));$('#cashb').classList.toggle('hide',method!=='cash')},
+    async pay(){
+      if(!cart.length)return toast('Чек порожній');
+      const j=await go('sale',{items:cart,disc:$('#dc').value,method,given:$('#gv')?.value,promo:$('#pr')?.value,client:$('#cl').value});
+      if(j){S.products=j.products;cart=[];appr=false;receipt(j.sale);await refresh()}},
+    rc(){receipt(S.sales.find(s=>s.no===id))},
+    async sdel(){if(confirm('Видалити чек №'+id+'? Товари повернуться на склад.')){if(await go('sale/del',{no:id}))refresh()}},
+    edit(){editId=id;draw();$('#pn').scrollIntoView?.()},
+    async pdel(){if(confirm('Видалити товар?')&&await go('product/del',{id}))refresh()},
+    async psave(){
+      const j=await go('product',{id:editId,name:$('#pn').value,price:$('#pp').value,stock:$('#ps')?.value,code:$('#pc').value,cat:$('#pcat').value,min:$('#pm').value});
+      if(j){editId=null;toast('Збережено');refresh()}},
+    pcancel(){editId=null;draw()},
+    async mov(){
+      const j=await go('stock',{type:d.t,id:+$('#sp').value,qty:$('#sq').value,note:$('#sn').value});
+      if(j){toast('Збережено');refresh()}},
+    async invsave(){
+      for(const i of document.querySelectorAll('[data-inv]'))if(i.value!==''&&+i.value!==+i.dataset.cur)if(!await go('stock',{type:'inv',id:+i.dataset.inv,qty:i.value}))return;
+      toast('Інвентаризацію збережено');refresh()},
+    async invite(){
+      const j=await go('user/invite',{email:$('#ue').value,name:$('#un').value,role:$('#ur').value});
+      if(j){modal(`<h3>Працівника створено</h3><p>Передайте працівнику email і цей одноразовий пароль. Він зареєструється на сторінці входу («Маєте одноразовий пароль?»).</p><div style="font:700 24px monospace;text-align:center;margin:14px 0;letter-spacing:2px">${j.otp}</div><p class="mu">Пароль показується один раз.</p><button class="k" style="width:100%" data-a="close">Зрозуміло</button>`);refresh()}},
+    async udel(){if(confirm('Видалити працівника '+d.email+'?')&&await go('user/del',{email:d.email}))refresh()},
+    async pw(){if(await go('password',{old:$('#po').value,new:$('#pnw').value})){toast('Пароль змінено');$('#po').value=$('#pnw').value=''}},
+    async shop(){const j=await go('settings',{name:$('#sn2').value});if(j){S.settings=j.settings;draw();toast('Збережено')}},
+    async cadd(){const data={};document.querySelectorAll(`[data-f="${d.c}"]`).forEach(i=>data[i.dataset.k]=i.value);const j=await go('coll',{c:d.c,d:data});if(j){S[d.c]=j.coll;toast('Додано');draw()}},
+    async cdel(){if(confirm('Видалити запис?')){const j=await go('coll',{c:d.c,del:1,id});if(j){S[d.c]=j.coll;draw()}}},
+    async msave(){const j=await go('settings',{methods:{cash:$('#xc').checked,card:$('#xk').checked}});if(j){S.settings=j.settings;toast('Збережено');draw()}},
+    async rsave(){const j=await go('settings',{receipt:{head:$('#rh').value,foot:$('#rf').value,showCashier:$('#rs').checked}});if(j){S.settings=j.settings;toast('Збережено')}},
+    csv(){csvOut()},out(){logout()},close(){$('#md').classList.add('hide')}};
+  A[d.a]?.()});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){q=e.target.value;$('#plist').innerHTML=plist()}
+  if(e.target.id==='dc'||e.target.id==='gv')calc();
+  if(e.target.id==='jq'||e.target.id==='ju'){jf.t=$('#jq').value;jf.u=$('#ju').value;$('#jb').innerHTML=jrRows()}});
+document.addEventListener('change',async e=>{
+  if(e.target.id==='ju'){jf.u=e.target.value;$('#jb').innerHTML=jrRows()}
+  if(e.target.id!=='pr')return;promoPct=0;const c=e.target.value.trim();
+  if(c){const j=await go('promo/check',{code:c});if(j){promoPct=j.percent;toast('Промокод діє: −'+j.percent+'%')}else e.target.value=''}
+  calc()});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  if(e.target.id==='ap')return document.querySelector('[data-a=apok]').click();
+  if(e.target.id==='q'&&q){const p=S.products.find(x=>x.code&&x.code===q.trim());if(p){e.target.value=q='';$('#plist').innerHTML=plist();document.querySelector(`#plist [data-id="${p.id}"]`)?.click()||0}}});
+function modal(h,c){const m=$('#md');m.innerHTML=`<div class="box ${c||''}">${h}</div>`;m.classList.remove('hide')}
+function receipt(s){const R=S.settings.receipt||{};modal(`<div style="text-align:center"><b>${esc(S.settings.name)}</b>${R.head?`<br><small>${esc(R.head)}</small>`:''}<br><small>Чек №${s.no} · ${dt(s.t)}</small></div><hr>
+${s.items.map(i=>`<div class="row"><span class="gr">${esc(i.name)} ×${i.q}</span>${money(i.price*i.q)}</div>`).join('')}<hr>
+${s.disc?`<div class="row"><span class="gr">Знижка</span>${s.disc}%</div>`:''}<div class="row"><b class="gr">РАЗОМ</b><b>${money(s.sum)}</b></div>
+<div class="row"><span class="gr">Оплата</span>${s.method==='cash'?'Готівка':'Картка'}</div>${s.given?`<div class="row"><span class="gr">Решта</span>${money(s.given-s.sum)}</div>`:''}
+${R.showCashier!==false?`<div class="row"><span class="gr">Касир</span>${esc(s.byName)}</div>`:''}
+<p style="text-align:center">${esc(R.foot??'Дякуємо за покупку! 💛')}</p><div class="row"><button class="gr" onclick="window.print()">Друк</button><button class="k gr" data-a="close">Готово</button></div>`,'paper')}
+
+/* ---------- сторінки ---------- */
+const sum=a=>a.reduce((x,s)=>x+s.sum,0);
+function salesT(list,acts){return `<div class="box w"><table class="st"><tr><th>№</th><th>Час</th><th>Товари</th><th>Оплата</th><th>Хто</th><th>Сума</th><th></th></tr>${list.map(s=>`<tr><td>${s.no}</td><td>${dt(s.t)}</td><td>${s.items.map(i=>esc(i.name)+' ×'+i.q).join(', ')}</td><td>${s.method==='cash'?'Готівка':'Картка'}</td><td>${esc(s.byName)}</td><td><b>${money(s.sum)}</b></td><td><button data-a="rc" data-id="${s.no}" title="Показати чек">${RCI}</button>${acts&&['owner','admin'].includes(S.user.role)?` <button class="r" data-a="sdel" data-id="${s.no}">✕</button>`:''}</td></tr>`).join('')||'<tr><td colspan=7 class="mu">Чеків ще немає. Пробийте перший у розділі «Продаж».</td></tr>'}</table></div>`}
+function home(){
+  const td=new Date().toDateString(),ts=S.sales.filter(s=>new Date(s.t).toDateString()===td);
+  const tot=sum(ts),cash=sum(ts.filter(s=>s.method==='cash')),card=tot-cash,pc=tot?Math.round(cash/tot*100):0,low=S.products.filter(p=>p.stock<=p.min).length;
+  return `<h2>Головна</h2><section class="day"><div><span class="mu">Виторг сьогодні</span><b class="big">${money(tot)}</b></div>
+  <div><div class="bar"><i style="width:${pc}%"></i></div><div class="lg"><span><s class="d1"></s>Готівка ${money(cash)}</span><span><s class="d2"></s>Картка ${money(card)}</span></div></div>
+  <dl class="facts"><div><dt>Чеків</dt><dd>${ts.length}</dd></div><div><dt>Середній чек</dt><dd>${ts.length?money(tot/ts.length):'—'}</dd></div>${ok('stock')?`<div><dt>Закінчується</dt><dd>${low}</dd></div>`:''}</dl></section>
+  <h3>Останні чеки</h3>`+salesT(S.sales.slice(0,5))}
+const cats=()=>[...new Set(S.products.map(p=>p.cat||'Значки'))];
+const cartSum=()=>cart.reduce((s,i)=>s+S.products.find(p=>p.id===i.id).price*i.q,0);
+const pList=()=>S.products.filter(p=>(!catF||(p.cat||'Значки')===catF)&&(!onlyIn||p.stock>0)&&(p.name.toLowerCase().includes(q.toLowerCase())||(p.code||'').includes(q)));
+function plist(){
+  const l=pList(),bd=p=>`<span class="bd ${p.stock<=0?'z':''}">${p.stock} шт</span>`;
+  if(!l.length)return '<p class="mu" style="padding:14px">Нічого не знайдено</p>';
+  if(vm==='grid')return `<div class="pg">${l.map(p=>`<button class="pt" data-a="add" data-id="${p.id}">${disc(p,64)}<b>${esc(p.name)}</b><span>${money(p.price)}</span>${bd(p)}</button>`).join('')}</div>`;
+  return `<table class="pl"><tr><th></th><th>Назва</th><th>Залишки</th><th>Код</th><th>Ціна</th><th></th></tr>${l.map(p=>`<tr><td style="width:56px">${disc(p,38)}</td><td><b>${esc(p.name)}</b></td><td>${bd(p)}</td><td class="mu">${esc(p.code)}</td><td>${money(p.price)}</td><td><button class="k" data-a="add" data-id="${p.id}">+</button></td></tr>`).join('')}</table>`}
+function sell(){
+  return `<div class="two"><div><div class="row"><input id="q" class="gr" placeholder="Пошук по каталогу товарів (або скануйте код)" value="${esc(q)}"><button data-a="vm" title="Вигляд">${vm==='list'?'▦':'☰'}</button><button data-a="onlyin" class="${onlyIn?'k':''}">В наявності</button></div>
+  <div class="row" style="flex-wrap:wrap">${cats().map(c=>`<button class="fd ${catF===c?'on':''}" data-a="cat" data-c="${esc(c)}">${esc(c)} <small>${S.products.filter(p=>(p.cat||'Значки')===c).length}</small></button>`).join('')}</div>
+  <div class="box w" id="plist" style="margin-top:8px">${plist()}</div></div><div class="box" id="chk"></div></div>`}
+function sellDraw(){
+  const el=$('#chk');if(!el)return;
+  const line=(i,k)=>{const p=S.products.find(x=>x.id===i.id);return `<div class="line"><span class="gr"><b>${esc(p.name)}</b><small class="mu">${money(p.price)}</small></span><button data-a="dec" data-k="${k}">−</button><b>${i.q}</b><button data-a="inc" data-k="${k}">+</button><span class="sm">${money(p.price*i.q)}</span><button class="r" data-a="rm" data-k="${k}" title="Видалити з чека">✕</button></div>`};
+  el.innerHTML=`<div class="row"><h3 class="gr">Чек</h3><button class="r" data-a="clear" ${cart.length?'':'disabled'}>Очистити</button></div><hr>
+  <div class="cl">${cart.length?cart.map(line).join(''):'<div class="emp"><b>Чек порожній</b><span class="mu">Натисніть на товар, щоб додати</span></div>'}</div>
+  <div class="tot"><span>До сплати:</span><span>${money(cartSum())}</span></div><button class="cta" data-a="topay" ${cart.length?'':'disabled'}>Перейти до оплати</button>`}
+function askAppr(then){
+  if(appr)return then();apprCb=then;
+  modal(`<h3 style="margin-top:0">Потрібен пароль відповідального</h3><p class="mu">Видалення з чека підтверджує власник, адміністратор або заступник.</p><input id="ap" type="password" placeholder="Пароль відповідального" autocomplete="off"><div class="row"><button class="gr" data-a="close">Скасувати</button><button class="k gr" data-a="apok">Підтвердити</button></div>`);
+  setTimeout(()=>$('#ap')?.focus(),50)}
+function payModal(){
+  const M=S.settings.methods||{cash:true,card:true};if(!M[method])method=M.cash?'cash':'card';promoPct=0;
+  const mb=(m,t)=>M[m]?`<button class="gr ${method===m?'k':''}" data-a="m" data-m="${m}">${t}</button>`:'';
+  modal(`<h3 style="margin-top:0">Оплата</h3><div class="row"><span class="gr">Знижка, %</span><input id="dc" type="number" min="0" max="90" value="0" style="width:80px"></div><div class="row"><span class="gr">Промокод</span><input id="pr" placeholder="Код" style="width:140px;text-transform:uppercase"></div><div class="tot"><span>До сплати:</span><span id="pt"></span></div>
+  <div class="row">${mb('cash','Готівка')}${mb('card','Картка')}</div>
+  <div id="cashb" class="${method==='cash'?'':'hide'}"><div class="row"><span class="gr">Отримано, ₴</span><input id="gv" type="number" min="0" style="width:110px"></div><div class="row"><span class="gr">Решта</span><b id="chg">—</b></div></div>
+  <input id="cl" placeholder="Клієнт / коментар" style="margin:6px 0"><div class="row"><button class="gr" data-a="close">Назад</button><button class="g gr" data-a="pay">Оплатити</button></div>`);calc()}
+function calc(){
+  const pc=promoPct||Math.min(90,Math.max(0,+$('#dc').value||0)),t=Math.round(cartSum()*(100-pc))/100,g=+($('#gv')?.value||0);
+  $('#pt').textContent=money(t);$('#chg').textContent=g?(g>=t?money(g-t):'не вистачає '+money(t-g)):'—'}
+const hist=()=>`<h2>Історія чеків</h2>`+salesT(S.sales,1);
+function prod(){
+  const p=S.products.find(x=>x.id===editId)||{},rows=S.products.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.code)}</td><td>${money(x.price)}</td><td><span class="bd ${x.stock<=0?'z':''}">${x.stock} шт</span></td><td><button data-a="edit" data-id="${x.id}" title="Редагувати">${PEN}</button> ${['owner','admin'].includes(S.user.role)?`<button class="r" data-a="pdel" data-id="${x.id}">✕</button>`:''}</td></tr>`).join('');
+  return `<h2>Товари</h2><div class="box"><b>${editId?'Редагувати товар':'Новий товар'}</b><div class="row"><input id="pn" placeholder="Назва" value="${esc(p.name)}" class="gr"><input id="pp" type="number" placeholder="Ціна ₴" value="${p.price??''}" style="width:100px"><input id="pc" placeholder="Код / штрихкод" value="${esc(p.code)}" style="width:140px"><input id="pcat" list="cl2" placeholder="Категорія" value="${esc(p.cat||'Значки')}" style="width:140px"><datalist id="cl2">${cats().map(c=>`<option value="${esc(c)}">`).join('')}</datalist></div>
+  <div class="row" style="align-items:flex-end">${editId?'':'<label class="fl">Початковий залишок<input id="ps" type="number" min="0" placeholder="0"></label>'}<label class="fl">Попередити, коли залишок ≤<input id="pm" type="number" min="0" value="${p.min??10}"></label><button class="k" data-a="psave">Зберегти</button>${editId?'<button data-a="pcancel">Скасувати</button>':''}</div></div>
+  <div class="box w" style="margin-top:12px"><table><tr><th>Назва</th><th>Код</th><th>Ціна</th><th>Залишок</th><th></th></tr>${rows}</table></div>`}
+function mov(t,title,label){
+  const l=S.log.filter(x=>x.a.startsWith(label+':'));
+  return `<h2>${title}</h2><div class="box"><div class="row"><select id="sp" class="gr">${S.products.map(p=>`<option value="${p.id}">${esc(p.name)} (зараз ${p.stock})</option>`).join('')}</select><input id="sq" type="number" min="1" placeholder="Кількість" style="width:120px"></div><div class="row"><input id="sn" placeholder="Примітка (необов'язково)" class="gr"><button class="k" data-a="mov" data-t="${t}">Додати на склад</button></div></div>
+  <h3>Останні записи</h3><div class="box w"><table><tr><th>Час</th><th>Хто</th><th>Запис</th></tr>${l.map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Записів немає</td></tr>'}</table></div>`}
+const stop=()=>`<h2>Стоп-листи</h2><p class="mu">Товари, що закінчилися або майже закінчилися (залишок ≤ мінімального).</p><div class="box w"><table><tr><th>Назва</th><th>Залишок</th><th>Мінімум</th></tr>${S.products.filter(p=>p.stock<=p.min).map(p=>`<tr><td>${esc(p.name)}</td><td><span class="bd ${p.stock<=0?'z':''}">${p.stock} шт</span></td><td>${p.min}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Усе в наявності 🎉</td></tr>'}</table></div>`;
+const inv=()=>`<h2>Інвентаризація</h2><p class="mu">Впишіть фактичну кількість там, де вона відрізняється від облікової.</p><div class="box w"><table><tr><th>Назва</th><th>В обліку</th><th>Фактично</th></tr>${S.products.map(p=>`<tr><td>${esc(p.name)}</td><td>${p.stock}</td><td><input type="number" min="0" style="width:110px" data-inv="${p.id}" data-cur="${p.stock}"></td></tr>`).join('')}</table></div><div class="row"><button class="k" data-a="invsave">Зберегти інвентаризацію</button></div>`;
+const logV=()=>`<h2>Історія дій</h2><div class="box w"><table><tr><th>Час</th><th>Хто</th><th>Дія</th></tr>${S.log.map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Порожньо</td></tr>'}</table></div>`;
+function org(){
+  const roles=S.user.role==='owner'?['admin','deputy','cashier']:['deputy','cashier'];
+  return `<h2>Моя організація</h2><div class="box"><b>Додати працівника</b><div class="row"><input id="ue" type="email" placeholder="Email" class="gr"><input id="un" placeholder="Ім'я" class="gr"><select id="ur">${roles.map(r=>`<option value="${r}">${RL[r]}</option>`).join('')}</select><button class="k" data-a="invite">Створити</button></div><div class="mu">Система видасть одноразовий пароль для першого входу.</div></div>
+  <div class="box w" style="margin-top:12px"><table><tr><th>Ім'я</th><th>Email</th><th>Роль</th><th>Статус</th><th></th></tr><tr><td>${esc(S.user.role==='owner'?S.user.name:'Власник')}</td><td>—</td><td>Власник</td><td><span class="bd">активний</span></td><td></td></tr>
+  ${S.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${RL[u.role]}</td><td><span class="bd">${u.active?'активний':'очікує реєстрації'}</span></td><td>${S.user.role==='owner'||['deputy','cashier'].includes(u.role)?`<button class="r" data-a="udel" data-email="${esc(u.email)}">✕</button>`:''}</td></tr>`).join('')}</table></div>`}
+function rep(){
+  const byD={},byP={};S.sales.forEach(s=>{const d=new Date(s.t).toLocaleDateString('uk-UA');(byD[d]=byD[d]||{n:0,s:0}).n++;byD[d].s+=s.sum;s.items.forEach(i=>{(byP[i.name]=byP[i.name]||{q:0,s:0}).q+=i.q;byP[i.name].s+=i.price*i.q})});
+  return `<h2>Звіти</h2><div class="row"><b class="gr">Усього: ${S.sales.length} чеків на ${money(sum(S.sales))}</b><button data-a="csv">⬇️ CSV</button></div>
+  <h3>По днях</h3><div class="box w"><table><tr><th>Дата</th><th>Чеків</th><th>Виторг</th></tr>${Object.entries(byD).slice(0,31).map(([d,v])=>`<tr><td>${d}</td><td>${v.n}</td><td>${money(v.s)}</td></tr>`).join('')||'<tr><td colspan=3 class="mu">Немає даних</td></tr>'}</table></div>
+  <h3>По товарах</h3><div class="box w"><table><tr><th>Товар</th><th>Продано, шт</th><th>Сума</th></tr>${Object.entries(byP).map(([n,v])=>`<tr><td>${esc(n)}</td><td>${v.q}</td><td>${money(v.s)}</td></tr>`).join('')}</table></div>`}
+function csvOut(){
+  const c=x=>'"'+String(x).replace(/"/g,'""')+'"',t='\ufeff'+['№;час;товари;знижка %;оплата;сума;касир',...S.sales.map(s=>[s.no,dt(s.t),s.items.map(i=>i.name+' x'+i.q).join(', '),s.disc,s.method==='cash'?'готівка':'картка',s.sum,s.byName].map(c).join(';'))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv;charset=utf-8'}));a.download='kasa.csv';a.click()}
+function set(){
+  return `<h2>Налаштування</h2>${S.user.role==='owner'?`<div class="box"><b>Назва магазину</b><div class="row"><input id="sn2" class="gr" value="${esc(S.settings.name)}"><button class="k" data-a="shop">Зберегти</button></div></div>`:`<div class="box"><b>Змінити пароль</b><div class="row"><input id="po" type="password" placeholder="Старий пароль" class="gr"><input id="pnw" type="password" placeholder="Новий (від 10 символів)" class="gr"><button class="k" data-a="pw">Змінити</button></div></div>`}
+  <div class="box" style="margin-top:12px">Ви увійшли як <b>${esc(S.user.name)}</b> (${RL[S.user.role]})<div class="row"><button class="r" data-a="out">Вийти</button></div></div>`}
+/* ---------- нові розділи ---------- */
+const dk=t=>{const x=new Date(t);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')},mk=t=>dk(t).slice(0,7);
+const ml=k=>new Date(k+'-01').toLocaleDateString('uk-UA',{month:'long',year:'numeric'});
+const tb=(h,rows,empty)=>`<div class="box w"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows||`<tr><td colspan="${h.length}" class="mu">${empty||'Немає даних'}</td></tr>`}</table></div>`;
+const cd=(a,v)=>`<div class="card"><span>${a}</span><b>${v}</b></div>`,dl=(c,id)=>`<button class="r" data-a="cdel" data-c="${c}" data-id="${id}">✕</button>`,gap='<div style="height:12px"></div>';
+const EXPC=['Оренда','Матеріали','Зарплата','Реклама','Інше'];
+const partV=()=>`<h2>Партнери</h2><div class="box"><b>Додати партнера або постачальника</b><div class="row"><input data-f="partners" data-k="name" class="gr" placeholder="Назва"><input data-f="partners" data-k="phone" placeholder="Телефон" style="width:160px"><input data-f="partners" data-k="note" class="gr" placeholder="Нотатка"><button class="k" data-a="cadd" data-c="partners">Додати</button></div></div>${gap}`+tb(['Назва','Телефон','Нотатка',''],S.partners.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.phone)}</td><td>${esc(p.note)}</td><td>${dl('partners',p.id)}</td></tr>`).join(''),'Партнерів ще немає');
+const promoV=()=>`<h2>Маркетинг</h2><div class="box"><b>Промокоди</b><p class="mu" style="margin:4px 0">Клієнт називає код, касир вводить його на екрані оплати, і знижка застосовується автоматично.</p><div class="row"><input data-f="promos" data-k="code" placeholder="Код, напр. SPRING10" style="width:200px;text-transform:uppercase"><input data-f="promos" data-k="percent" type="number" min="1" max="90" placeholder="Знижка, %" style="width:130px"><button class="k" data-a="cadd" data-c="promos">Створити</button></div></div>${gap}`+tb(['Код','Знижка',''],S.promos.map(p=>`<tr><td><b>${esc(p.code)}</b></td><td>${p.percent}%</td><td>${dl('promos',p.id)}</td></tr>`).join(''),'Промокодів ще немає');
+function finV(){
+  const k=mk(new Date()),rev=sum(S.sales.filter(s=>mk(s.t)===k)),ex=S.expenses.filter(e=>mk(e.t)===k).reduce((a,e)=>a+e.amount,0);
+  return `<h2>Фінанси</h2><div class="cards">${cd('Виручка за місяць',money(rev))}${cd('Витрати за місяць',money(ex))}${cd('Прибуток',money(rev-ex))}</div>
+  <div class="box"><b>Додати витрату</b><div class="row"><select data-f="expenses" data-k="cat">${EXPC.map(x=>`<option>${x}</option>`).join('')}</select><input data-f="expenses" data-k="amount" type="number" min="1" placeholder="Сума ₴" style="width:120px"><input data-f="expenses" data-k="note" class="gr" placeholder="Коментар"><button class="k" data-a="cadd" data-c="expenses">Додати</button></div></div><h3>Витрати</h3>`+
+  tb(['Дата','Категорія','Коментар','Сума',''],S.expenses.map(e=>`<tr><td>${dt(e.t)}</td><td>${esc(e.cat)}</td><td>${esc(e.note)}</td><td><b>${money(e.amount)}</b></td><td>${dl('expenses',e.id)}</td></tr>`).join(''),'Витрат ще немає')}
+function plV(){
+  const m={},z=k=>m[k]=m[k]||{r:0,e:0};S.sales.forEach(s=>z(mk(s.t)).r+=s.sum);S.expenses.forEach(e=>z(mk(e.t)).e+=e.amount);
+  return `<h2>P&L</h2><p class="mu">Прибуток = виручка − витрати. Собівартість товарів не враховується.</p>`+tb(['Місяць','Виручка','Витрати','Прибуток'],Object.keys(m).sort().reverse().map(k=>{const p=m[k].r-m[k].e;return `<tr><td>${ml(k)}</td><td>${money(m[k].r)}</td><td>${money(m[k].e)}</td><td><b style="color:${p<0?'var(--no)':'var(--ok)'}">${money(p)}</b></td></tr>`}).join(''))}
+function abcV(){
+  const m={};S.sales.forEach(s=>s.items.forEach(i=>m[i.name]=(m[i.name]||0)+i.price*i.q));
+  const a=Object.entries(m).sort((x,y)=>y[1]-x[1]),T=a.reduce((s,x)=>s+x[1],0);let c=0;
+  return `<h2>ABC-аналіз</h2><p class="mu">A — товари, що дають перші 80% виручки, B — наступні 15%, C — решта.</p>`+tb(['Товар','Виручка','Частка','Клас'],a.map(([n,v])=>{const pr=c/T*100;c+=v;return `<tr><td>${esc(n)}</td><td>${money(v)}</td><td>${(v/T*100).toFixed(1)}%</td><td><span class="bd">${pr<80?'A':pr<95?'B':'C'}</span></td></tr>`}).join(''))}
+function cfV(){
+  const m={},z=k=>m[k]=m[k]||{i:0,o:0};S.sales.forEach(s=>z(dk(s.t)).i+=s.sum);S.expenses.forEach(e=>z(dk(e.t)).o+=e.amount);let b=0;
+  const rows=Object.keys(m).sort().map(k=>{b+=m[k].i-m[k].o;return `<tr><td>${k.split('-').reverse().join('.')}</td><td>${money(m[k].i)}</td><td>${money(m[k].o)}</td><td><b>${money(b)}</b></td></tr>`}).reverse().join('');
+  return `<h2>Cashflow</h2><p class="mu">Рух грошей по днях: надходження від продажів, витрати і накопичений баланс.</p>`+tb(['Дата','Надходження','Витрати','Баланс'],rows)}
+const MV=/^(Продаж|Постачання|Виробництво|Інвентаризація|Чек видалено)/;
+const mvV=()=>`<h2>Звіт по руху</h2><p class="mu">Рух товарів: продажі, постачання, виробництво та інвентаризація.</p>`+tb(['Час','Хто','Операція'],S.log.filter(x=>MV.test(x.a)).map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join(''));
+const jrRows=()=>{const t=jf.t.toLowerCase();return S.log.filter(x=>(!jf.u||x.u===jf.u)&&(!t||x.a.toLowerCase().includes(t))).map(x=>`<tr><td>${dt(x.t)}</td><td>${esc(x.u)}</td><td>${esc(x.a)}</td></tr>`).join('')||'<tr><td colspan="3" class="mu">Нічого не знайдено</td></tr>'};
+const jrV=()=>`<h2>Журнал дій</h2><div class="row"><input id="jq" class="gr" placeholder="Пошук по діях" value="${esc(jf.t)}"><select id="ju"><option value="">Усі працівники</option>${[...new Set(S.log.map(x=>x.u))].map(u=>`<option ${jf.u===u?'selected':''}>${esc(u)}</option>`).join('')}</select></div><div class="box w"><table><tr><th>Час</th><th>Хто</th><th>Дія</th></tr><tbody id="jb">${jrRows()}</tbody></table></div>`;
+const payV=()=>{const M=S.settings.methods||{cash:true,card:true};return `<h2>Методи оплати</h2><div class="box"><label class="row"><input id="xc" type="checkbox" ${M.cash?'checked':''} style="width:auto"> Готівка</label><label class="row"><input id="xk" type="checkbox" ${M.card?'checked':''} style="width:auto"> Картка</label><button class="k" data-a="msave">Зберегти</button></div>`};
+const rcpV=()=>{const R=S.settings.receipt||{};return `<h2>Чеки</h2><div class="box"><div class="row"><span style="width:110px">Шапка чека</span><input id="rh" class="gr" value="${esc(R.head)}" placeholder="Адреса, телефон…"></div><div class="row"><span style="width:110px">Підвал чека</span><input id="rf" class="gr" value="${esc(R.foot??'Дякуємо за покупку! 💛')}"></div><label class="row"><input id="rs" type="checkbox" ${R.showCashier!==false?'checked':''} style="width:auto"> Показувати касира на чеку</label><button class="k" data-a="rsave">Зберегти</button></div>`};
+boot();
+</script>
+</body>
+</html>
